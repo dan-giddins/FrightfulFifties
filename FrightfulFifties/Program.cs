@@ -28,18 +28,15 @@ namespace FrightfulFifties
 				new List<int> {1, 18},
 				new List<int> {24, 7}
 			};
-			BruteForce(allTiles);
+			//BruteForce(allTiles);
+			GroupsOfFour(allTiles);
 		}
 
-		private static void BruteForce(IList<List<int>> allTiles)
+		private static void GroupsOfFour(IList<List<int>> allTiles)
 		{
 			for (var i = 0; i < Math.Pow(2, 16); i++)
 			{
-				var tileSet = new int[allTiles.Count];
-				for (var j = 0; j < tileSet.Length; j++)
-				{
-					tileSet[j] = allTiles[j][(i & (1 << j)) >> j];
-				}
+				var tileSet = GetTileSet(allTiles, i);
 				foreach (var permutation in GetPermutations(tileSet, 0, tileSet.Length - 1))
 				{
 					if (Check(permutation))
@@ -49,6 +46,33 @@ namespace FrightfulFifties
 					}
 				}
 			}
+		}
+
+		private static void BruteForce(IList<List<int>> allTiles)
+		{
+			for (var i = 0; i < Math.Pow(2, 16); i++)
+			{
+				var tileSet = GetTileSet(allTiles, i);
+				foreach (var permutation in GetPermutations(tileSet, 0, tileSet.Length - 1))
+				{
+					if (Check(permutation))
+					{
+						Console.WriteLine("Found a Solution!");
+						PrintBoard(permutation);
+					}
+				}
+			}
+		}
+
+		private static int[] GetTileSet(IList<List<int>> allTiles, int i)
+		{
+			var tileSet = new int[allTiles.Count];
+			for (var j = 0; j < tileSet.Length; j++)
+			{
+				tileSet[j] = allTiles[j][(i & (1 << j)) >> j];
+			}
+
+			return tileSet;
 		}
 
 		private static void PrintBoard(IList<int> list)
