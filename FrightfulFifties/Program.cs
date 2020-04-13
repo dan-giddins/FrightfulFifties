@@ -28,14 +28,25 @@ namespace FrightfulFifties
 				new List<int> {1, 18},
 				new List<int> {24, 7}
 			};
-			var tileSet = allTiles.Select(x => x[0]).ToArray();
-			foreach (var permutation in GetPermutations(tileSet, 0, tileSet.Length - 1))
+			BruteForce(allTiles);
+		}
+
+		private static void BruteForce(IList<List<int>> allTiles)
+		{
+			for (var i = 0; i < Math.Pow(2, 16); i++)
 			{
-				PrintBoard(permutation);
-				if (Check(permutation))
+				var tileSet = new int[allTiles.Count];
+				for (var j = 0; j < tileSet.Length; j++)
 				{
-					Console.WriteLine("Found a Solution!");
-					PrintBoard(permutation);
+					tileSet[j] = allTiles[j][(i & (1 << j)) >> j];
+				}
+				foreach (var permutation in GetPermutations(tileSet, 0, tileSet.Length - 1))
+				{
+					if (Check(permutation))
+					{
+						Console.WriteLine("Found a Solution!");
+						PrintBoard(permutation);
+					}
 				}
 			}
 		}
