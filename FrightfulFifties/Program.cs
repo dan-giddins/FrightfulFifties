@@ -34,80 +34,134 @@ namespace FrightfulFifties
 
 		private static void GroupsOfFour(IList<IList<int>> allTiles)
 		{
+			var fourGroups = new List<IList<IList<int>>>();
 			foreach (var rowCombination in GetCombinations(allTiles, 4))
 			{
-				PrintGroup(rowCombination);
-			}
-		}
-
-		private static void PrintGroup(IList<IList<int>> rowCombination)
-		{
-			foreach (var tile in rowCombination)
-			{
-				Console.Write(tile[0].ToString().PadRight(3));
-			}
-			Console.WriteLine();
-			foreach (var tile in rowCombination)
-			{
-				Console.Write(tile[1].ToString().PadRight(3));
-			}
-			Console.WriteLine();
-			Console.WriteLine();
-		}
-
-		static IEnumerable<IList<IList<int>>> GetCombinations(IList<IList<int>> list, int k)=>
-			k == 1
-			? list.Select(x => new List<IList<int>> { x })
-			: GetCombinations(list, k - 1).SelectMany(x =>
-				list.Where(y => y[0] != x.Last()[0] && y[1] != x.Last()[1]),
-				(t1, t2) => t1.Concat(new List<IList<int>> { t2 }).ToList());
-
-		private static void BruteForce(IList<List<int>> allTiles)
-		{
-			for (var i = 0; i < Math.Pow(2, 16); i++)
-			{
-				var tileSet = GetTileSet(allTiles, i);
-				foreach (var permutation in GetPermutations(tileSet, 0, tileSet.Length - 1))
+				for (var i = 0; i < Math.Pow(2, 4); i++)
 				{
-					if (Check(permutation))
+					var tileSet = GetTileSet(rowCombination, i);
+					if (FourCheck(tileSet))
 					{
-						Console.WriteLine("Found a Solution!");
-						PrintBoard(permutation);
+						fourGroups.Add(tileSet);
 					}
+				}
+			}
+			foreach (var fourGroupCombination in GetCombinations(fourGroups, 4))
+			{
+				if (CheckUniqueTiles(fourGroupCombination))
+				{
+					PrintBoard(fourGroupCombination);
 				}
 			}
 		}
 
-		private static int[] GetTileSet(IList<List<int>> allTiles, int i)
+		private static void PrintBoard(IList<IList<IList<int>>> fourGroupCombination)
 		{
-			var tileSet = new int[allTiles.Count];
-			for (var j = 0; j < tileSet.Length; j++)
+			foreach (var fourGroup in fourGroupCombination)
 			{
-				tileSet[j] = allTiles[j][(i & (1 << j)) >> j];
-			}
-
-			return tileSet;
-		}
-
-		private static void PrintBoard(IList<int> list)
-		{
-			for (var i = 0; i < list.Count() / 4; i++)
-			{
-				list.Skip(i * 4).Take(4).ToList().ForEach(delegate (int value)
-				{
-					Console.Write(value.ToString().PadRight(3));
-				});
+				PrintRow(fourGroup, 0);
+				Console.Write("| ");
+				PrintRow(fourGroup, 1);
 				Console.WriteLine();
 			}
 			Console.WriteLine();
 		}
 
-		private static bool Check(IList<int> list)
+		private static bool CheckUniqueTiles(IList<IList<IList<int>>> fourGroupCombination)
+		{
+			foreach (var fourGroup in fourGroupCombination)
+			{
+				foreach (var tile in fourGroup)
+				{
+					var tempFourGroupCombination = fourGroupCombination.ToList();
+					tempFourGroupCombination.Remove(fourGroup);
+					foreach (var tempFourGroup in tempFourGroupCombination)
+					{
+						foreach (var tempTile in tempFourGroup)
+						{
+							if (tile[0] == tempTile[0] && tile[1] == tempTile[1]
+								|| tile[0] == tempTile[1] && tile[1] == tempTile[0])
+							{
+								return false;
+							}
+						}
+					}
+				}
+			}
+			return true;
+		}
+
+		private static bool FourCheck(IList<IList<int>> rowCombination) =>
+			rowCombination.Select(x => x[0]).Sum() == 50 && rowCombination.Select(x => x[1]).Sum() == 50;
+
+		private static void PrintGroup(IList<IList<int>> rowCombination)
+		{
+			PrintRow(rowCombination, 0);
+			Console.WriteLine();
+			PrintRow(rowCombination, 1);
+			Console.WriteLine();
+			Console.WriteLine();
+		}
+
+		private static void PrintRow(IList<IList<int>> rowCombination, int i)
+		{
+			foreach (var tile in rowCombination)
+			{
+				Console.Write(tile[i].ToString().PadRight(3));
+			}
+		}
+
+		static IEnumerable<IList<T>> GetCombinations<T>(IList<T> list, int k) =>
+			k == 1
+			? list.Select(x => new List<T> { x })
+			: list.SelectMany((e, i) =>
+				GetCombinations(list.Skip(i + 1).ToList(), k - 1).Select(c => (new[] { e }).Concat(c).ToList()));
+
+		private static void BruteForce(IList<IList<int>> allTiles)
+		{
+			for (var i = 0; i < Math.Pow(2, 16); i++)
+			{
+				var tileSet = GetTileSet(allTiles, i);
+				foreach (var permutation in GetPermutations(tileSet, 0, tileSet.Count - 1))
+				{
+					if (BruteCheck(permutation))
+					{
+						Console.WriteLine("Found a Solution!");
+						PrintBruteBoard(permutation);
+					}
+				}
+			}
+		}
+
+		private static IList<IList<int>> GetTileSet(IList<IList<int>> allTiles, int i)
+		{
+			var tileSet = new List<IList<int>>();
+			for (var j = 0; j < allTiles.Count; j++)
+			{
+				tileSet.Add(new List<int> { allTiles[j][(i & (1 << j)) >> j], allTiles[j][(~i & (1 << j)) >> j] });
+			}
+			return tileSet;
+		}
+
+		private static void PrintBruteBoard(IList<IList<int>> list)
+		{
+			for (var i = 0; i < list.Count() / 4; i++)
+			{
+				foreach (var value in list.Skip(i * 4).Take(4).Select(x => x.First()))
+				{
+					Console.Write(value.ToString().PadRight(3));
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine();
+		}
+
+		private static bool BruteCheck(IList<IList<int>> list)
 		{
 			for (var i = 0; i < list.Count() / 4; i++)
 			{
 				// rows
-				if (list.Skip(i * 4).Take(4).Sum() != 50)
+				if (list.Skip(i * 4).Take(4).Select(x => x.First()).Sum() != 50)
 				{
 					return false;
 				}
@@ -115,7 +169,7 @@ namespace FrightfulFifties
 				var columnSum = 0;
 				for (var j = i; j < list.Count() / 4; j++)
 				{
-					columnSum += list[j];
+					columnSum += list[j].First();
 				}
 				if (columnSum != 50)
 				{
@@ -126,7 +180,7 @@ namespace FrightfulFifties
 			var leftDiagSum = 0;
 			for (var i = 0; i < list.Count(); i += 5)
 			{
-				leftDiagSum += list[i];
+				leftDiagSum += list[i].First();
 			}
 			if (leftDiagSum != 50)
 			{
@@ -135,12 +189,12 @@ namespace FrightfulFifties
 			var rightDiagSum = 0;
 			for (var i = 3; i < list.Count(); i += 3)
 			{
-				rightDiagSum += list[i];
+				rightDiagSum += list[i].First();
 			}
 			return rightDiagSum == 50;
 		}
 
-		private static IEnumerable<IList<int>> GetPermutations(int[] list, int pointer, int max)
+		private static IEnumerable<IList<IList<int>>> GetPermutations(IList<IList<int>> list, int pointer, int max)
 		{
 			if (pointer == max)
 			{
@@ -150,17 +204,17 @@ namespace FrightfulFifties
 			{
 				for (var i = pointer; i <= max; i++)
 				{
-					Swap(ref list[pointer], ref list[i]);
+					Swap(list[pointer], list[i]);
 					foreach (var result in GetPermutations(list, pointer + 1, max))
 					{
 						yield return result;
 					}
-					Swap(ref list[pointer], ref list[i]);
+					Swap(list[pointer], list[i]);
 				}
 			}
 		}
 
-		private static void Swap(ref int a, ref int b)
+		private static void Swap(IList<int> a, IList<int> b)
 		{
 			var temp = a;
 			a = b;
