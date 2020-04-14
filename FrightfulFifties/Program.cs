@@ -50,7 +50,36 @@ namespace FrightfulFifties
 			{
 				if (CheckUniqueTiles(fourGroupCombination))
 				{
-					PrintBoard(fourGroupCombination);
+					foreach (var grid in FindColumn(new List<IList<IList<int>>>(), fourGroupCombination, 0))
+					{
+						PrintBoard(grid);
+					}
+				}
+			}
+		}
+
+		private static IEnumerable<IList<IList<IList<int>>>> FindColumn(
+			IList<IList<IList<int>>> solvedGrid,
+			IList<IList<IList<int>>> unsolvedLayers,
+			int i)
+		{
+			// create layer
+			solvedGrid[i] = new List<IList<int>>();
+			foreach (var tile in unsolvedLayers[i])
+			{
+				solvedGrid[i].Add(tile);
+				unsolvedLayers[i].Remove(tile);
+				if (i < 3)
+				{
+					// solve next layer
+					foreach (var solution in FindColumn(solvedGrid.ToList(), unsolvedLayers.ToList(), i + 1))
+					{
+						//yield return solution;
+					}
+				}
+				else
+				{
+
 				}
 			}
 		}
