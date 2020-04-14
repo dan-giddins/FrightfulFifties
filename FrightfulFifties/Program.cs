@@ -9,7 +9,7 @@ namespace FrightfulFifties
 	{
 		private static void Main()
 		{
-			var allTiles = new List<List<int>>
+			var allTiles = new List<IList<int>>
 			{
 				new List<int> {22, 8},
 				new List<int> {9, 20},
@@ -32,21 +32,35 @@ namespace FrightfulFifties
 			GroupsOfFour(allTiles);
 		}
 
-		private static void GroupsOfFour(IList<List<int>> allTiles)
+		private static void GroupsOfFour(IList<IList<int>> allTiles)
 		{
-			for (var i = 0; i < Math.Pow(2, 16); i++)
+			foreach (var rowCombination in GetCombinations(allTiles, 4))
 			{
-				var tileSet = GetTileSet(allTiles, i);
-				foreach (var permutation in GetPermutations(tileSet, 0, tileSet.Length - 1))
-				{
-					if (Check(permutation))
-					{
-						Console.WriteLine("Found a Solution!");
-						PrintBoard(permutation);
-					}
-				}
+				PrintGroup(rowCombination);
 			}
 		}
+
+		private static void PrintGroup(IList<IList<int>> rowCombination)
+		{
+			foreach (var tile in rowCombination)
+			{
+				Console.Write(tile[0].ToString().PadRight(3));
+			}
+			Console.WriteLine();
+			foreach (var tile in rowCombination)
+			{
+				Console.Write(tile[1].ToString().PadRight(3));
+			}
+			Console.WriteLine();
+			Console.WriteLine();
+		}
+
+		static IEnumerable<IList<IList<int>>> GetCombinations(IList<IList<int>> list, int k)=>
+			k == 1
+			? list.Select(x => new List<IList<int>> { x })
+			: GetCombinations(list, k - 1).SelectMany(x =>
+				list.Where(y => y[0] != x.Last()[0] && y[1] != x.Last()[1]),
+				(t1, t2) => t1.Concat(new List<IList<int>> { t2 }).ToList());
 
 		private static void BruteForce(IList<List<int>> allTiles)
 		{
