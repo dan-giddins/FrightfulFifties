@@ -66,6 +66,72 @@ namespace FrightfulFifties
 			//	}
 			//}
 			//Console.WriteLine($"Computed uniqueness graph.");
+
+			//PrintRowCount(allStatefullTiles);
+
+			Console.WriteLine("Finding valid grids...");
+			foreach (var rowA in rows)
+			{
+				var tileA = rowA.Row[0];
+				var validColumnAs = tileA.RowNodes.Where(x =>
+					x != rowA && !x.Row.Any(y =>
+						y != tileA && rowA.Row.Any(z =>
+							z != tileA && IsSameTile(y, z))));
+				foreach (var columnA in validColumnAs)
+				{
+					var tileB = rowA.Row[1];
+					var validColumnBs = tileB.RowNodes.Where(x =>
+						x != rowA && !x.Row.Any(y =>
+							y != tileB && rowA.Row.Any(z =>
+								z != tileB && IsSameTile(y, z))
+							|| columnA.Row.Any(z =>
+								IsSameTile(y, z))));
+					foreach (var columnB in validColumnBs)
+					{
+						var tileC = rowA.Row[2];
+						var validColumnCs = tileC.RowNodes.Where(x =>
+							x != rowA && !x.Row.Any(y =>
+								y != tileC && rowA.Row.Any(z =>
+									z != tileC && IsSameTile(y, z))
+								|| columnA.Row.Any(z =>
+									IsSameTile(y, z))
+								|| columnB.Row.Any(z =>
+									IsSameTile(y, z))));
+						foreach (var columnC in validColumnCs)
+						{
+							var tileD = rowA.Row[3];
+							var validColumnDs = tileD.RowNodes.Where(x =>
+								x != rowA && !x.Row.Any(y =>
+									y != tileD && rowA.Row.Any(z =>
+										z != tileD && IsSameTile(y, z))
+									|| columnA.Row.Any(z =>
+										IsSameTile(y, z))
+									|| columnB.Row.Any(z =>
+										IsSameTile(y, z))
+									|| columnC.Row.Any(z =>
+										IsSameTile(y, z))));
+							foreach (var columnD in validColumnDs)
+							{
+								PrintBoard(new List<RowNode> { columnA, columnB, columnC, columnD });
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private static bool IsSameTile(StatefulTile a, StatefulTile b) =>
+			a == b || a == b.StatefulTileTwin;
+
+		private static void PrintRowCount(IList<StatefulTile> allStatefullTiles)
+		{
+			foreach (var tile in allStatefullTiles)
+			{
+				PrintFace(tile, 0);
+				Console.Write("| ");
+				PrintFace(tile, 1);
+				Console.WriteLine($": {tile.RowNodes.Count} Rows");
+			}
 		}
 
 		private static IList<StatefulTile> GetAllStatefulTiles(IList<Tile> allTiles)
@@ -83,7 +149,7 @@ namespace FrightfulFifties
 			return allStatefulTiles;
 		}
 
-		private static void PrintBoard(IList<IList<IList<int>>> fourGroupCombination)
+		private static void PrintBoard(IList<RowNode> fourGroupCombination)
 		{
 			foreach (var fourGroup in fourGroupCombination)
 			{
@@ -125,22 +191,25 @@ namespace FrightfulFifties
 			: tileSet.Select(x => x.GetFaceValue(0)).Sum() == 50
 				&& tileSet.Select(x => x.GetFaceValue(1)).Sum() == 50;
 
-		private static void PrintGroup(IList<IList<int>> rowCombination)
+		private static void PrintGroup(RowNode rowNode)
 		{
-			PrintRow(rowCombination, 0);
+			PrintRow(rowNode, 0);
 			Console.WriteLine();
-			PrintRow(rowCombination, 1);
+			PrintRow(rowNode, 1);
 			Console.WriteLine();
 			Console.WriteLine();
 		}
 
-		private static void PrintRow(IList<IList<int>> rowCombination, int i)
+		private static void PrintRow(RowNode rowNode, int i)
 		{
-			foreach (var tile in rowCombination)
+			foreach (var tile in rowNode.Row)
 			{
-				Console.Write(tile[i].ToString().PadRight(3));
+				PrintFace(tile, i);
 			}
 		}
+
+		private static void PrintFace(StatefulTile tile, int i) =>
+			Console.Write(tile.GetFaceValue(i).ToString().PadRight(3));
 
 		static IEnumerable<IList<T>> GetCombinations<T>(IList<T> list, int k) =>
 			k == 1
