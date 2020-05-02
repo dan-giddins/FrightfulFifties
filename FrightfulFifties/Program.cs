@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace FrightfulFifties
 {
@@ -112,7 +113,71 @@ namespace FrightfulFifties
 										IsSameTile(y, z))));
 							foreach (var columnD in validColumnDs)
 							{
-								PrintBoard(new List<RowNode> { columnA, columnB, columnC, columnD });
+								// create new objects and remove row A from the colums
+								var columnARowB = CopyRow(columnA);
+								columnARowB.Row.Remove(tileA);
+								var columnBRowB = CopyRow(columnB);
+								columnBRowB.Row.Remove(tileB);
+								var columnCRowB = CopyRow(columnC);
+								columnCRowB.Row.Remove(tileC);
+								var columnDRowB = CopyRow(columnD);
+								columnDRowB.Row.Remove(tileD);
+								var validRowBs = rows.Except(new List<RowNode>
+								{ rowA, columnA, columnB, columnC, columnD })
+									.Where(x =>
+										columnARowB.Row.Any(y => x.Row.Contains(y))
+										&& columnBRowB.Row.Any(y => x.Row.Contains(y))
+										&& columnCRowB.Row.Any(y => x.Row.Contains(y))
+										&& columnDRowB.Row.Any(y => x.Row.Contains(y)));
+								foreach (var validRowB in validRowBs)
+								{
+									var columnARowC = CopyRow(columnARowB);
+									var columnBRowC = CopyRow(columnBRowB);
+									var columnCRowC = CopyRow(columnCRowB);
+									var columnDRowC = CopyRow(columnDRowB);
+									foreach (var tile in validRowB.Row)
+									{
+										columnARowC.Row.Remove(tile);
+										columnBRowC.Row.Remove(tile);
+										columnCRowC.Row.Remove(tile);
+										columnDRowC.Row.Remove(tile);
+									}
+									var validRowCs = rows.Except(new List<RowNode>
+									{ rowA, validRowB, columnA, columnB, columnC, columnD })
+										.Where(x =>
+										columnARowC.Row.Any(y => x.Row.Contains(y))
+										&& columnBRowC.Row.Any(y => x.Row.Contains(y))
+										&& columnCRowC.Row.Any(y => x.Row.Contains(y))
+										&& columnDRowC.Row.Any(y => x.Row.Contains(y)));
+									foreach (var validRowC in validRowCs)
+									{
+										var columnARowD = CopyRow(columnARowC);
+										var columnBRowD = CopyRow(columnBRowC);
+										var columnCRowD = CopyRow(columnCRowC);
+										var columnDRowD = CopyRow(columnDRowC);
+										foreach (var tile in validRowC.Row)
+										{
+											columnARowD.Row.Remove(tile);
+											columnBRowD.Row.Remove(tile);
+											columnCRowD.Row.Remove(tile);
+											columnDRowD.Row.Remove(tile);
+										}
+										var validRowD = rows.Except(new List<RowNode>
+										{ rowA, validRowB, validRowC, columnA, columnB, columnC, columnD })
+											.SingleOrDefault(x =>
+												columnARowD.Row.Any(y => x.Row.Contains(y))
+												&& columnBRowD.Row.Any(y => x.Row.Contains(y))
+												&& columnCRowD.Row.Any(y => x.Row.Contains(y))
+												&& columnDRowD.Row.Any(y => x.Row.Contains(y)));
+										if (validRowD != null)
+										{
+											//PrintBoard(new List<RowNode> { rowA, validRowB, validRowC, validRowD });
+											// create and organise board as 2D array
+											var possibleDiagonalAs = rows.Except(new List<RowNode>
+										{ rowA, validRowB, validRowC, validRowD, columnA, columnB, columnC, columnD });
+										}
+									}
+								}
 							}
 						}
 					}
@@ -120,6 +185,8 @@ namespace FrightfulFifties
 			}
 		}
 
+		private static RowNode CopyRow(RowNode columnA) =>
+			new RowNode(columnA.Row.ToList());
 		private static bool IsSameTile(StatefulTile a, StatefulTile b) =>
 			a == b || a == b.StatefulTileTwin;
 
