@@ -1,14 +1,14 @@
 ﻿using Combinatorics.Collections;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace FrightfulFifties
 {
 	internal class Program
 	{
+		private static int validSolutions = 0;
+
 		private static void Main()
 		{
 			var allTiles = new List<Tile>
@@ -74,107 +74,147 @@ namespace FrightfulFifties
 			foreach (var rowA in rows)
 			{
 				var tileA = rowA.Row[0];
-				var validColumnAs = tileA.RowNodes.Where(x =>
+				var validColAs = tileA.RowNodes.Where(x =>
 					x != rowA && !x.Row.Any(y =>
 						y != tileA && rowA.Row.Any(z =>
 							z != tileA && IsSameTile(y, z))));
-				foreach (var columnA in validColumnAs)
+				foreach (var colA in validColAs)
 				{
 					var tileB = rowA.Row[1];
-					var validColumnBs = tileB.RowNodes.Where(x =>
+					var validColBs = tileB.RowNodes.Where(x =>
 						x != rowA && !x.Row.Any(y =>
 							y != tileB && rowA.Row.Any(z =>
 								z != tileB && IsSameTile(y, z))
-							|| columnA.Row.Any(z =>
+							|| colA.Row.Any(z =>
 								IsSameTile(y, z))));
-					foreach (var columnB in validColumnBs)
+					foreach (var colB in validColBs)
 					{
 						var tileC = rowA.Row[2];
-						var validColumnCs = tileC.RowNodes.Where(x =>
+						var validColCs = tileC.RowNodes.Where(x =>
 							x != rowA && !x.Row.Any(y =>
 								y != tileC && rowA.Row.Any(z =>
 									z != tileC && IsSameTile(y, z))
-								|| columnA.Row.Any(z =>
+								|| colA.Row.Any(z =>
 									IsSameTile(y, z))
-								|| columnB.Row.Any(z =>
+								|| colB.Row.Any(z =>
 									IsSameTile(y, z))));
-						foreach (var columnC in validColumnCs)
+						foreach (var colC in validColCs)
 						{
 							var tileD = rowA.Row[3];
-							var validColumnDs = tileD.RowNodes.Where(x =>
+							var validColDs = tileD.RowNodes.Where(x =>
 								x != rowA && !x.Row.Any(y =>
 									y != tileD && rowA.Row.Any(z =>
 										z != tileD && IsSameTile(y, z))
-									|| columnA.Row.Any(z =>
+									|| colA.Row.Any(z =>
 										IsSameTile(y, z))
-									|| columnB.Row.Any(z =>
+									|| colB.Row.Any(z =>
 										IsSameTile(y, z))
-									|| columnC.Row.Any(z =>
+									|| colC.Row.Any(z =>
 										IsSameTile(y, z))));
-							foreach (var columnD in validColumnDs)
+							foreach (var colD in validColDs)
 							{
 								// create new objects and remove row A from the colums
-								var columnARowB = CopyRow(columnA);
-								columnARowB.Row.Remove(tileA);
-								var columnBRowB = CopyRow(columnB);
-								columnBRowB.Row.Remove(tileB);
-								var columnCRowB = CopyRow(columnC);
-								columnCRowB.Row.Remove(tileC);
-								var columnDRowB = CopyRow(columnD);
-								columnDRowB.Row.Remove(tileD);
+								var colARowB = CopyRow(colA);
+								colARowB.Row.Remove(tileA);
+								var colBRowB = CopyRow(colB);
+								colBRowB.Row.Remove(tileB);
+								var colCRowB = CopyRow(colC);
+								colCRowB.Row.Remove(tileC);
+								var colDRowB = CopyRow(colD);
+								colDRowB.Row.Remove(tileD);
 								var validRowBs = rows.Except(new List<RowNode>
-								{ rowA, columnA, columnB, columnC, columnD })
+								{ rowA, colA, colB, colC, colD })
 									.Where(x =>
-										columnARowB.Row.Any(y => x.Row.Contains(y))
-										&& columnBRowB.Row.Any(y => x.Row.Contains(y))
-										&& columnCRowB.Row.Any(y => x.Row.Contains(y))
-										&& columnDRowB.Row.Any(y => x.Row.Contains(y)));
+										colARowB.Row.Any(y => x.Row.Contains(y))
+										&& colBRowB.Row.Any(y => x.Row.Contains(y))
+										&& colCRowB.Row.Any(y => x.Row.Contains(y))
+										&& colDRowB.Row.Any(y => x.Row.Contains(y)));
 								foreach (var validRowB in validRowBs)
 								{
-									var columnARowC = CopyRow(columnARowB);
-									var columnBRowC = CopyRow(columnBRowB);
-									var columnCRowC = CopyRow(columnCRowB);
-									var columnDRowC = CopyRow(columnDRowB);
+									var colARowC = CopyRow(colARowB);
+									var colBRowC = CopyRow(colBRowB);
+									var colCRowC = CopyRow(colCRowB);
+									var colDRowC = CopyRow(colDRowB);
 									foreach (var tile in validRowB.Row)
 									{
-										columnARowC.Row.Remove(tile);
-										columnBRowC.Row.Remove(tile);
-										columnCRowC.Row.Remove(tile);
-										columnDRowC.Row.Remove(tile);
+										colARowC.Row.Remove(tile);
+										colBRowC.Row.Remove(tile);
+										colCRowC.Row.Remove(tile);
+										colDRowC.Row.Remove(tile);
 									}
 									var validRowCs = rows.Except(new List<RowNode>
-									{ rowA, validRowB, columnA, columnB, columnC, columnD })
+									{ rowA, validRowB, colA, colB, colC, colD })
 										.Where(x =>
-										columnARowC.Row.Any(y => x.Row.Contains(y))
-										&& columnBRowC.Row.Any(y => x.Row.Contains(y))
-										&& columnCRowC.Row.Any(y => x.Row.Contains(y))
-										&& columnDRowC.Row.Any(y => x.Row.Contains(y)));
+										colARowC.Row.Any(y => x.Row.Contains(y))
+										&& colBRowC.Row.Any(y => x.Row.Contains(y))
+										&& colCRowC.Row.Any(y => x.Row.Contains(y))
+										&& colDRowC.Row.Any(y => x.Row.Contains(y)));
 									foreach (var validRowC in validRowCs)
 									{
-										var columnARowD = CopyRow(columnARowC);
-										var columnBRowD = CopyRow(columnBRowC);
-										var columnCRowD = CopyRow(columnCRowC);
-										var columnDRowD = CopyRow(columnDRowC);
+										var colARowD = CopyRow(colARowC);
+										var colBRowD = CopyRow(colBRowC);
+										var colCRowD = CopyRow(colCRowC);
+										var colDRowD = CopyRow(colDRowC);
 										foreach (var tile in validRowC.Row)
 										{
-											columnARowD.Row.Remove(tile);
-											columnBRowD.Row.Remove(tile);
-											columnCRowD.Row.Remove(tile);
-											columnDRowD.Row.Remove(tile);
+											colARowD.Row.Remove(tile);
+											colBRowD.Row.Remove(tile);
+											colCRowD.Row.Remove(tile);
+											colDRowD.Row.Remove(tile);
 										}
 										var validRowD = rows.Except(new List<RowNode>
-										{ rowA, validRowB, validRowC, columnA, columnB, columnC, columnD })
+										{ rowA, validRowB, validRowC, colA, colB, colC, colD })
 											.SingleOrDefault(x =>
-												columnARowD.Row.Any(y => x.Row.Contains(y))
-												&& columnBRowD.Row.Any(y => x.Row.Contains(y))
-												&& columnCRowD.Row.Any(y => x.Row.Contains(y))
-												&& columnDRowD.Row.Any(y => x.Row.Contains(y)));
+												colARowD.Row.Any(y => x.Row.Contains(y))
+												&& colBRowD.Row.Any(y => x.Row.Contains(y))
+												&& colCRowD.Row.Any(y => x.Row.Contains(y))
+												&& colDRowD.Row.Any(y => x.Row.Contains(y)));
 										if (validRowD != null)
 										{
-											//PrintBoard(new List<RowNode> { rowA, validRowB, validRowC, validRowD });
+											//PrintRows(new List<RowNode> { rowA, validRowB, validRowC, validRowD });
+											//PrintRows(new List<RowNode>
+											//{ rowA, validRowB, validRowC, validRowD, columnA, columnB, columnC, columnD });
 											// create and organise board as 2D array
-											var possibleDiagonalAs = rows.Except(new List<RowNode>
-										{ rowA, validRowB, validRowC, validRowD, columnA, columnB, columnC, columnD });
+											var board = new StatefulTile[4, 4];
+											var i = 0;
+											// apply row A
+											foreach (var tile in rowA.Row)
+											{
+												board[0, i++] = tile;
+											}
+											// apply row B
+											board[1, 0] = colA.Row.Single(x => validRowB.Row.Contains(x));
+											board[1, 1] = colB.Row.Single(x => validRowB.Row.Contains(x));
+											board[1, 2] = colC.Row.Single(x => validRowB.Row.Contains(x));
+											board[1, 3] = colD.Row.Single(x => validRowB.Row.Contains(x));
+											// apply row C
+											board[2, 0] = colA.Row.Single(x => validRowC.Row.Contains(x));
+											board[2, 1] = colB.Row.Single(x => validRowC.Row.Contains(x));
+											board[2, 2] = colC.Row.Single(x => validRowC.Row.Contains(x));
+											board[2, 3] = colD.Row.Single(x => validRowC.Row.Contains(x));
+											// apply row D
+											board[3, 0] = colA.Row.Single(x => validRowD.Row.Contains(x));
+											board[3, 1] = colB.Row.Single(x => validRowD.Row.Contains(x));
+											board[3, 2] = colC.Row.Single(x => validRowD.Row.Contains(x));
+											board[3, 3] = colD.Row.Single(x => validRowD.Row.Contains(x));
+											//PrintBoard(board);
+											var possibleDiagAs = rows.Except(new List<RowNode>
+											{ rowA, validRowB, validRowC, validRowD, colA, colB, colC, colD });
+											foreach (var possibleDiagA in possibleDiagAs)
+											{
+												CheckDiag(
+													rows,
+													rowA,
+													validRowB,
+													validRowC,
+													validRowD,
+													colA,
+													colB,
+													colC,
+													colD,
+													possibleDiagA,
+													(StatefulTile[,]) board.Clone());
+											}
 										}
 									}
 								}
@@ -183,6 +223,129 @@ namespace FrightfulFifties
 					}
 				}
 			}
+			Console.WriteLine($"Found {validSolutions} valid grids.");
+		}
+
+		private static void CheckDiag(
+			List<RowNode> rows,
+			RowNode rowA,
+			RowNode validRowB,
+			RowNode validRowC,
+			RowNode validRowD,
+			RowNode colA,
+			RowNode colB,
+			RowNode colC,
+			RowNode colD,
+			RowNode possibleDiagA,
+			StatefulTile[,] board)
+		{
+			var counter = 0;
+			//PrintBoard(diagABoard);
+			foreach (var tileDiagA in possibleDiagA.Row)
+			{
+				//PrintTile(tileDiagA);
+				int i;
+				int j;
+				(i, j) = GetTileLocation(board, tileDiagA);
+				if (i == -1 || i < counter || j < counter)
+				{
+					return;
+				}
+				SwapRow(ref board, counter, i);
+				SwapCol(ref board, counter, j);
+				counter++;
+			}
+			//PrintBoard(diagABoard);
+			// check all possible diagBs
+			for (var i = 0; i < 4; i++)
+			{
+				CheckAndSwapRowAndCol(ref board, 0, 1);
+				CheckAndSwapRowAndCol(ref board, 0, 2);
+				CheckAndSwapRowAndCol(ref board, 0, 1);
+				CheckAndSwapRowAndCol(ref board, 0, 2);
+				CheckAndSwapRowAndCol(ref board, 0, 1);
+				CheckAndSwapRowAndCol(ref board, i, 3);
+			}
+		}
+
+		private static void SwapCol(ref StatefulTile[,] board, int a, int b)
+		{
+			var temp = new StatefulTile[4];
+			for (var k = 0; k < 4; k++)
+			{
+				temp[k] = board[k, b];
+				board[k, b] = board[k, a];
+				board[k, a] = temp[k];
+			}
+		}
+
+		private static void SwapRow(ref StatefulTile[,] board, int a, int b)
+		{
+			var temp = new StatefulTile[4];
+			for (var k = 0; k < 4; k++)
+			{
+				temp[k] = board[b, k];
+				board[b, k] = board[a, k];
+				board[a, k] = temp[k];
+			}
+		}
+
+		private static void CheckAndSwapRowAndCol(ref StatefulTile[,] board, int a, int b)
+		{
+			var diagB = new List<StatefulTile>();
+			for (var i = 0; i < 4; i++)
+			{
+				diagB.Add(board[i, 3 - i]);
+			}
+			if (ValidRow(diagB))
+			{
+				// every row, col and diag is valid
+				//PrintBoard(board);
+				validSolutions++;
+			}
+			SwapRow(ref board, a, b);
+			SwapCol(ref board, a, b);
+		}
+
+		private static void PrintTile(StatefulTile tileDiagA)
+		{
+			PrintFace(tileDiagA, 0);
+			Console.Write("| ");
+			PrintFace(tileDiagA, 1);
+			Console.WriteLine();
+		}
+
+		private static (int, int) GetTileLocation(StatefulTile[,] board, StatefulTile tile)
+		{
+			for (var i = 0; i < 4; i++)
+			{
+				for (var j = 0; j < 4; j++)
+				{
+					if (board[i, j] == tile)
+					{
+						return (i, j);
+					}
+				}
+			}
+			return (-1, -1);
+		}
+
+		private static void PrintBoard(StatefulTile[,] board)
+		{
+			for (var i = 0; i < 4; i++)
+			{
+				for (var j = 0; j < 4; j++)
+				{
+					PrintFace(board[i, j], 0);
+				}
+				Console.Write("| ");
+				for (var j = 0; j < 4; j++)
+				{
+					PrintFace(board[i, j], 1);
+				}
+				Console.WriteLine();
+			}
+			Console.WriteLine();
 		}
 
 		private static RowNode CopyRow(RowNode columnA) =>
@@ -216,7 +379,7 @@ namespace FrightfulFifties
 			return allStatefulTiles;
 		}
 
-		private static void PrintBoard(IList<RowNode> fourGroupCombination)
+		private static void PrintRows(IList<RowNode> fourGroupCombination)
 		{
 			foreach (var fourGroup in fourGroupCombination)
 			{
