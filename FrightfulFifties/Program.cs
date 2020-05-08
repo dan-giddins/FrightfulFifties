@@ -257,6 +257,7 @@ namespace FrightfulFifties
 			}
 			//PrintBoard(diagABoard);
 			// check all possible diagBs
+			// can use heaps algorithm here
 			for (var i = 0; i < 4; i++)
 			{
 				CheckAndSwapRowAndCol(ref board, 0, 1);
@@ -300,9 +301,31 @@ namespace FrightfulFifties
 			if (ValidRow(diagB))
 			{
 				// every row, col and diag is valid
+				// inner and outer lines can be swaped
+				RemainingChecks(ref board);
+				SwapRowAndCol(ref board, 0, 3);
+				RemainingChecks(ref board);
+				SwapRowAndCol(ref board, 1, 2);
+				RemainingChecks(ref board);
+				SwapRowAndCol(ref board, 0, 3);
+				RemainingChecks(ref board);
 				//PrintBoard(board);
-				validSolutions++;
+				//validSolutions++;
 			}
+			SwapRowAndCol(ref board, a, b);
+		}
+
+		private static void RemainingChecks(ref StatefulTile[,] board)
+		{
+			// check corners
+			if (ValidRow(new List<StatefulTile> { board[0,0], board[0,3], board[3,0], board[3,3] }))
+			{
+				// check squares 
+			}
+		}
+
+		private static void  SwapRowAndCol(ref StatefulTile[,] board, int a, int b)
+		{
 			SwapRow(ref board, a, b);
 			SwapCol(ref board, a, b);
 		}
