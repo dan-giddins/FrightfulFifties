@@ -257,6 +257,7 @@ namespace FrightfulFifties
 			}
 			//PrintBoard(diagABoard);
 			// check all possible diagBs
+			// can use heaps algorithm here
 			for (var i = 0; i < 4; i++)
 			{
 				CheckAndSwapRowAndCol(ref board, 0, 1);
@@ -300,9 +301,70 @@ namespace FrightfulFifties
 			if (ValidRow(diagB))
 			{
 				// every row, col and diag is valid
-				//PrintBoard(board);
-				validSolutions++;
+				// inner and outer lines can be swaped
+				RemainingChecks(ref board);
+				SwapRowAndCol(ref board, 0, 3);
+				RemainingChecks(ref board);
+				SwapRowAndCol(ref board, 1, 2);
+				RemainingChecks(ref board);
+				SwapRowAndCol(ref board, 0, 3);
+				RemainingChecks(ref board);
 			}
+			SwapRowAndCol(ref board, a, b);
+		}
+
+		private static void RemainingChecks(ref StatefulTile[,] board)
+		{
+			// check corners
+			if (ValidRow(new List<StatefulTile> { board[0, 0], board[0, 3], board[3, 0], board[3, 3] }))
+			{
+				var valid = true;
+				// check squares
+				for (var i = 0; i < 3; i++)
+				{
+					if (!ValidRow(new List<StatefulTile> { board[i, i], board[i, i + 1], board[i + 1, i], board[i + 1, i + 1] }))
+					{
+						valid = false;
+						break;
+					}
+				}
+				if (valid)
+				{
+					// check opposite edges
+					if (ValidRow(new List<StatefulTile> { board[0, 1], board[0, 2], board[3, 1], board[3, 2] })
+						&& ValidRow(new List<StatefulTile> { board[1, 0], board[2, 0], board[1, 3], board[2, 3] }))
+					{
+						// check opposite diagonals
+						if (ValidRow(new List<StatefulTile> { board[0, 1], board[1, 0], board[3, 2], board[2, 3] })
+							&& ValidRow(new List<StatefulTile> { board[0, 2], board[1, 3], board[2, 0], board[3, 1] }))
+						{
+							// check opposite outside edge pairs
+							if (ValidRow(new List<StatefulTile> { board[0, 0], board[0, 1], board[3, 2], board[3, 3] })
+								&& ValidRow(new List<StatefulTile> { board[0, 0], board[1, 0], board[2, 3], board[3, 3] })
+								&& ValidRow(new List<StatefulTile> { board[0, 3], board[1, 3], board[2, 0], board[3, 0] })
+								&& ValidRow(new List<StatefulTile> { board[3, 0], board[3, 1], board[0, 2], board[0, 3] }))
+							{
+								//PrintBoard(board);
+								//validSolutions++;
+								// check each corner plus opposite short diagonal of 3
+								// check opposite outside edge pairs
+								if (ValidRow(new List<StatefulTile> { board[0, 0], board[1, 3], board[2, 2], board[3, 1] })
+									&& ValidRow(new List<StatefulTile> { board[0, 3], board[1, 0], board[2, 1], board[3, 2] })
+									&& ValidRow(new List<StatefulTile> { board[3, 3], board[0, 2], board[1, 1], board[2, 0] })
+									&& ValidRow(new List<StatefulTile> { board[3, 0], board[0, 1], board[1, 2], board[2, 3] }))
+								{
+									PrintBoard(board);
+									validSolutions++;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private static void SwapRowAndCol(ref StatefulTile[,] board, int a, int b)
+		{
 			SwapRow(ref board, a, b);
 			SwapCol(ref board, a, b);
 		}
