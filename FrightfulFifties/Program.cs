@@ -37,7 +37,7 @@ namespace FrightfulFifties
 		{
 			Console.WriteLine("Getting all stateful tiles...");
 			var allStatefullTiles = GetAllStatefulTiles(allTiles);
-			Console.WriteLine("Got all stateful tiles.");
+			Console.WriteLine($"Got {allStatefullTiles.Count()} stateful tiles.");
 
 			Console.WriteLine("Getting rows...");
 			var rows = new List<RowNode>();
@@ -70,7 +70,7 @@ namespace FrightfulFifties
 
 			//PrintRowCount(allStatefullTiles);
 
-			Console.WriteLine("Finding valid grids...");
+			Console.WriteLine("Finding valid grids...\n");
 			foreach (var rowA in rows)
 			{
 				var tileA = rowA.Row[0];
@@ -344,8 +344,8 @@ namespace FrightfulFifties
 								&& ValidRow(new List<StatefulTile> { board[0, 3], board[1, 3], board[2, 0], board[3, 0] })
 								&& ValidRow(new List<StatefulTile> { board[3, 0], board[3, 1], board[0, 2], board[0, 3] }))
 							{
-								//PrintBoard(board);
-								//validSolutions++;
+								PrintBoard(board);
+								validSolutions++;
 								// check each corner plus opposite short diagonal of 3
 								// check opposite outside edge pairs
 								if (ValidRow(new List<StatefulTile> { board[0, 0], board[1, 3], board[2, 2], board[3, 1] })
@@ -355,6 +355,7 @@ namespace FrightfulFifties
 								{
 									PrintBoard(board);
 									validSolutions++;
+									throw new Exception("You've done it!");
 								}
 							}
 						}
