@@ -77,41 +77,35 @@ namespace FrightfulFifties
 				var tileA = rowA.Row[0];
 				var validColAs = tileA.RowNodes.Where(x =>
 					x != rowA && !x.Row.Any(y =>
-						y != tileA && rowA.Row.Any(z =>
-							z != tileA && IsSameTile(y, z))));
+						y != tileA
+						&& rowA.Row.Any(z => IsSameTile(y, z))));
 				foreach (var colA in validColAs)
 				{
 					var tileB = rowA.Row[1];
 					var validColBs = tileB.RowNodes.Where(x =>
-						x != rowA && !x.Row.Any(y =>
-							y != tileB && rowA.Row.Any(z =>
-								z != tileB && IsSameTile(y, z))
-							|| colA.Row.Any(z =>
-								IsSameTile(y, z))));
+						x != rowA && x != colA && !x.Row.Any(y =>
+							y != tileB
+							&& (rowA.Row.Any(z => IsSameTile(y, z))
+								|| colA.Row.Any(z => IsSameTile(y, z)))));
 					foreach (var colB in validColBs)
 					{
 						var tileC = rowA.Row[2];
 						var validColCs = tileC.RowNodes.Where(x =>
-							x != rowA && !x.Row.Any(y =>
-								y != tileC && rowA.Row.Any(z =>
-									z != tileC && IsSameTile(y, z))
-								|| colA.Row.Any(z =>
-									IsSameTile(y, z))
-								|| colB.Row.Any(z =>
-									IsSameTile(y, z))));
+							x != rowA && x != colA && x != colB && !x.Row.Any(y =>
+								 y != tileC
+								 && (rowA.Row.Any(z => IsSameTile(y, z))
+									|| colA.Row.Any(z => IsSameTile(y, z))
+									|| colB.Row.Any(z => IsSameTile(y, z)))));
 						foreach (var colC in validColCs)
 						{
 							var tileD = rowA.Row[3];
 							var validColDs = tileD.RowNodes.Where(x =>
-								x != rowA && !x.Row.Any(y =>
-									y != tileD && rowA.Row.Any(z =>
-										z != tileD && IsSameTile(y, z))
-									|| colA.Row.Any(z =>
-										IsSameTile(y, z))
-									|| colB.Row.Any(z =>
-										IsSameTile(y, z))
-									|| colC.Row.Any(z =>
-										IsSameTile(y, z))));
+								x != rowA && x != colA && x != colB && x != colC && !x.Row.Any(y =>
+									y != tileD
+									&& (rowA.Row.Any(z => IsSameTile(y, z))
+										|| colA.Row.Any(z => IsSameTile(y, z))
+										|| colB.Row.Any(z => IsSameTile(y, z))
+										|| colC.Row.Any(z => IsSameTile(y, z)))));
 							foreach (var colD in validColDs)
 							{
 								// create new objects and remove row A from the colums
@@ -225,6 +219,17 @@ namespace FrightfulFifties
 				}
 			}
 			Console.WriteLine($"Found {validSolutions} valid grids.");
+		}
+
+		private static void CheckCounts(IEnumerable<RowNode> validColBs, IEnumerable<RowNode> temp)
+		{
+			Console.WriteLine(validColBs.Count());
+			Console.WriteLine(temp.Count());
+			Console.WriteLine();
+			if (validColBs.Count() != temp.Count())
+			{
+				throw new Exception("Counts are diffrent");
+			}
 		}
 
 		private static void PrintRowBothSides(RowNode rowNode)
@@ -353,7 +358,7 @@ namespace FrightfulFifties
 								&& ValidRow(new List<StatefulTile> { board[0, 3], board[1, 3], board[2, 0], board[3, 0] })
 								&& ValidRow(new List<StatefulTile> { board[3, 0], board[3, 1], board[0, 2], board[0, 3] }))
 							{
-								PrintBoard(board);
+								//PrintBoard(board);
 								validSolutions++;
 								// check each corner plus opposite short diagonal of 3
 								// check opposite outside edge pairs
