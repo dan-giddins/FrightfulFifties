@@ -38,7 +38,7 @@ namespace FrightfulFifties
 			Console.WriteLine("Getting all stateful tiles...");
 			var allStatefullTiles = GetAllStatefulTiles(allTiles);
 			Console.WriteLine($"Got {allStatefullTiles.Count()} stateful tiles.");
-
+			//Console.WriteLine(new Combinations<StatefulTile>(allStatefullTiles, 4).Count());
 			Console.WriteLine("Getting rows...");
 			var rows = new List<RowNode>();
 			foreach (var statefulTileCombination in new Combinations<StatefulTile>(allStatefullTiles, 4))
@@ -47,6 +47,7 @@ namespace FrightfulFifties
 				{
 					var rowNode = new RowNode(statefulTileCombination);
 					rows.Add(rowNode);
+					//PrintRowBothSides(rowNode);
 					foreach (var tile in rowNode.Row)
 					{
 						tile.RowNodes.Add(rowNode);
@@ -224,6 +225,14 @@ namespace FrightfulFifties
 				}
 			}
 			Console.WriteLine($"Found {validSolutions} valid grids.");
+		}
+
+		private static void PrintRowBothSides(RowNode rowNode)
+		{
+			PrintRow(rowNode, 0);
+			Console.Write("| ");
+			PrintRow(rowNode, 1);
+			Console.WriteLine();
 		}
 
 		private static void CheckDiag(
@@ -479,9 +488,8 @@ namespace FrightfulFifties
 		}
 
 		private static bool ValidRow(IList<StatefulTile> tileSet) =>
-			tileSet.Any(x => tileSet.Any(y => x.StatefulTileTwin == y))
-			? false
-			: tileSet.Select(x => x.GetFaceValue(0)).Sum() == 50
+			!tileSet.Any(x => tileSet.Any(y => x.StatefulTileTwin == y))
+			&& tileSet.Select(x => x.GetFaceValue(0)).Sum() == 50
 				&& tileSet.Select(x => x.GetFaceValue(1)).Sum() == 50;
 
 		private static void PrintGroup(RowNode rowNode)
