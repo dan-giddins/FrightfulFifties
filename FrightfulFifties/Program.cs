@@ -107,6 +107,24 @@ namespace FrightfulFifties
 										|| colA.Row.Any(z => IsSameTile(y, z))
 										|| colB.Row.Any(z => IsSameTile(y, z))
 										|| colC.Row.Any(z => IsSameTile(y, z)))));
+							try
+							{
+								var temp = tileD.RowNodes.SingleOrDefault(x =>
+									x != rowA && x != colA && x != colB && x != colC && !x.Row.Any(y =>
+										y != tileD
+										&& (rowA.Row.Any(z => IsSameTile(y, z))
+											|| colA.Row.Any(z => IsSameTile(y, z))
+											|| colB.Row.Any(z => IsSameTile(y, z))
+											|| colC.Row.Any(z => IsSameTile(y, z)))));
+							}
+							catch
+							{
+								foreach (var colD in validColDs)
+								{
+									PrintRowBothSides(colD);
+								}
+								var x = 0;
+							}
 							foreach (var colD in validColDs)
 							{
 								// create new objects and remove row A from the cols
